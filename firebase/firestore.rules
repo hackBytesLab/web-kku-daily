@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read, authenticated write (dev defaults). Tighten for production as needed.
+    function isAuthed() { return request.auth != null; }
+
+    match /markers/{markerId} {
+      allow read: if true;
+      allow create: if isAuthed();
+      allow update, delete: if isAuthed();
+
+      // Likes as subcollection: one doc per user
+      match /likes/{uid} {
+        allow read: if true;
+        allow create, update, delete: if isAuthed() && request.auth.uid == uid;
+      }
+
+      // Comments subcollection
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isAuthed();
+        allow update, delete: if isAuthed();
+      }
+    }
+  }
+}
+

@@ -1,0 +1,45 @@
+# Cloud Build pipeline for building the Vite frontend and deploying to Cloud Run.
+substitutions:
+  _SERVICE_NAME: mern-frontend
+  _REGION: asia-southeast1
+  _FRONTEND_IMAGE: asia-southeast1-docker.pkg.dev/$PROJECT_ID/mern/frontend
+  _MAPS_KEY: REPLACE_WITH_MAPS_KEY
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      [
+        "build",
+        "-t",
+        "$_FRONTEND_IMAGE",
+        "--build-arg",
+        "VITE_GOOGLE_MAPS_API_KEY=${_MAPS_KEY}",
+        "frontend"
+      ]
+
+  - name: gcr.io/cloud-builders/docker
+    args: ["push", "$_FRONTEND_IMAGE"]
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      [
+        "run",
+        "deploy",
+        "$_SERVICE_NAME",
+        "--image",
+        "$_FRONTEND_IMAGE",
+        "--region",
+        "$_REGION",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+        "--port",
+        "8080"
+      ]
+
+images:
+  - "$_FRONTEND_IMAGE"
+
+options:
+  logging: CLOUD_LOGGING_ONLY

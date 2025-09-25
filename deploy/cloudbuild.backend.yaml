@@ -1,0 +1,40 @@
+# Cloud Build pipeline for building and deploying the Express backend to Cloud Run.
+substitutions:
+  _SERVICE_NAME: mern-backend
+  _REGION: asia-southeast1
+  _BACKEND_IMAGE: asia-southeast1-docker.pkg.dev/$PROJECT_ID/mern/backend
+  _CLIENT_ORIGIN: https://your-frontend.example.com
+  _DB_PATH: /tmp/app.sqlite
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "$_BACKEND_IMAGE", "backend"]
+
+  - name: gcr.io/cloud-builders/docker
+    args: ["push", "$_BACKEND_IMAGE"]
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      [
+        "run",
+        "deploy",
+        "$_SERVICE_NAME",
+        "--image",
+        "$_BACKEND_IMAGE",
+        "--region",
+        "$_REGION",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+        "--port",
+        "8080",
+        "--set-env-vars",
+        "CLIENT_ORIGIN=${_CLIENT_ORIGIN},DB_PATH=${_DB_PATH}"
+      ]
+
+images:
+  - "$_BACKEND_IMAGE"
+
+options:
+  logging: CLOUD_LOGGING_ONLY

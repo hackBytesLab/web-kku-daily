@@ -1,0 +1,18 @@
+{
+  "name": "mern-starter-root",
+  "private": true,
+  "scripts": {
+    "dev:emu": "concurrently -k -n EMU,WEB -c magenta,cyan \"npx firebase emulators:start --only auth,firestore,storage\" \"npm --prefix frontend run dev\"",
+    "dev:web": "npm --prefix frontend run dev",
+    "fb:login": "npx firebase login",
+    "fb:use": "npx firebase use web-hack-4db89",
+    "fb:emulators": "npx firebase emulators:start --only auth,firestore,storage",
+    "fb:deploy:hosting": "npx firebase deploy --only hosting",
+    "fb:deploy:rules": "npx firebase deploy --only firestore:rules",
+    "fb:deploy:storage": "npx firebase deploy --only storage",
+    "fb:deploy:all": "npx firebase deploy --only hosting,firestore:rules,storage"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
