@@ -4,6 +4,8 @@
   "scripts": {
     "dev:emu": "concurrently -k -n EMU,WEB -c magenta,cyan \"npx firebase emulators:start --only auth,firestore,storage\" \"npm --prefix frontend run dev\"",
     "dev:web": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "deploy:gh": "npm run build && git add frontend/dist -f && git commit -m \"deploy: update\" && git subtree push --prefix frontend/dist origin gh-pages",
     "fb:login": "npx firebase login",
     "fb:use": "npx firebase use web-hack-4db89",
     "fb:emulators": "npx firebase emulators:start --only auth,firestore,storage",
